@@ -3,6 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { UsersModule } from './users/users.module';
+import { DmsModule } from './dms/dms.module';
+import { ChannelsModule } from './channels/channels.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 const getEnv = async () => {
   // axios.get(/비밀키 요청)
@@ -13,7 +17,7 @@ const getEnv = async () => {
 };
 @Module({
   // forRoot등 안에 설정을 넣어주어야함.
-  imports: [ConfigModule.forRoot({ isGlobal: true })], // ENV load: [getEnv]
+  imports: [ConfigModule.forRoot({ isGlobal: true }), UsersModule, DmsModule, ChannelsModule, WorkspacesModule], // ENV load: [getEnv]
   controllers: [AppController],
   providers: [AppService, ConfigService],
   // 원래 .. providers: [{
