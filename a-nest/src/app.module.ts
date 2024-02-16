@@ -16,6 +16,11 @@ const getEnv = async () => {
   imports: [ConfigModule.forRoot({ isGlobal: true })], // ENV load: [getEnv]
   controllers: [AppController],
   providers: [AppService, ConfigService],
+  // 원래 .. providers: [{
+  //  provide: AppService, (고유한 키)
+  //  useClass: AppService (useValue 또는 class) // 이렇게 원하는 의존성 주입을 해줄 수 있음
+  // }],
+  //  useFactory:() => {} // 이런것도 있음. 등..
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
