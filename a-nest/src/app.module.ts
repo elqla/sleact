@@ -12,7 +12,7 @@ const getEnv = async () => {
 };
 @Module({
   // forRoot등 안에 설정을 넣어주어야함.
-  imports: [ConfigModule.forRoot({ isGlobal: true, load: [getEnv] })],
+  imports: [ConfigModule.forRoot({ isGlobal: true })], // ENV load: [getEnv]
   controllers: [AppController],
   providers: [AppService, ConfigService],
 })
