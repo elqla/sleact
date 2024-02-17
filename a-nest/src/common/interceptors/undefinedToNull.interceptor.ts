@@ -18,8 +18,9 @@ import { Observable, map } from 'rxjs';
 // Z -> A -> X -> D
 
 // A ---> D 순으로 실행된다. (공통의 미들웨어를 가짐)
-// 미들웨어가 가로로 실행되지만, 잘보면 세로로도 공통인게 있음.
+// 미들웨어가 가로로 실행되지만, 잘보면 세로로도 공통인게 있음. (AOP)
 // 이를 중복제거할 순 없을까 ? --> 인터셉터
+// ex) interceptor가 a, d를 하고 b,c 는 컨트롤러에.
 
 // main controller 실행 전, 후 로 특정 동작을 넣어 줄 수 있음.
 
@@ -30,6 +31,8 @@ import { Observable, map } from 'rxjs';
 // 이때 그 데이터를 한번 더 조작하게 해줄때 인터셉터를 많이 사용함.
 
 // route에서 return user 말고, {data: user, code: 'success'} 등으로 알아서 해줬으면 할때 사용한다던가
+// 결국 res.json으로 한정하는게 아니라, 데이터를 가공할 기회를 줌
+// 끝에 return 시의 데이터 중복 제거.
 @Injectable()
 export class UndefinedToNullInterceptor implements NestInterceptor {
   intercept(
