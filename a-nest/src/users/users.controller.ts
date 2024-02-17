@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserDto } from 'src/common/dto/user.dto';
+import { User } from 'src/common/decorators/user.decorator';
 
 @ApiTags('Users')
 @Controller('api/users')
@@ -20,8 +21,8 @@ export class UsersController {
   })
   @ApiOperation({ summary: '내 정보 조회' }) // Swagger
   @Get()
-  getUsers(@Req() req) {
-    return req.users;
+  getUsers(@User() user) {
+    return user;
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -37,8 +38,8 @@ export class UsersController {
   })
   @ApiOperation({ summary: '로그인' })
   @Post('login')
-  logIn(@Req() req) {
-    return req.user;
+  logIn(@User() user) {
+    return user;
   }
 
   // Logout은 req, res를 쓰게됨.
