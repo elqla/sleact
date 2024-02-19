@@ -17,22 +17,23 @@ import { DMs } from './DMs';
 import { Mentions } from './Mentions';
 import { WorkspaceMembers } from './WorkspaceMembers';
 import { Workspaces } from './Workspaces';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ schema: 'sleact', name: 'users' })
 export class Users {
   // Entity를 DTO로 만들어주기도 함.
-  // @ApiProperty({
-  //   example: 1,
-  //   description: '사용자 아이디',
-  // })
+  @ApiProperty({
+    example: 1,
+    description: '사용자 아이디',
+  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  // @ApiProperty({
-  //   example: 1,
-  //   description: '사용자 email',
-  // })
+  @ApiProperty({
+    example: 1,
+    description: '사용자 email',
+  })
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
