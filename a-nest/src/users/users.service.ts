@@ -1,4 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
@@ -16,20 +21,21 @@ export class UsersService {
   // async에서 throw한 경우엔 서버를 멈추지 않고, 경고만 뜨고 만다.
   async join(email: string, nickname: string, password: string) {
     if (!nickname) {
-      throw new HttpException('nickname이 없어요.', 400);
+      throw new BadRequestException('nickname이 없어요.');
     }
     if (!email) {
-      throw new HttpException('email이 없어요.', 400);
+      throw new BadRequestException('email이 없어요.');
     }
     if (!password) {
-      throw new HttpException('password가 없어요.', 400);
+      throw new BadRequestException('password가 없어요.');
     }
 
     const user = await this.usersRepository.findOne({ where: { email } });
 
     if (user) {
       // 이미 존재
-      throw new HttpException('이미 존재하는 사용자입니다.', 400);
+      // throw new HttpException('이미 존재하는 사용자입니다.', 401);
+      throw new UnauthorizedException('이미 존재하는 사용자입니다.');
     }
     const hashedPassword = await bcrypt.hash(password, 12);
     await this.usersRepository.save({
