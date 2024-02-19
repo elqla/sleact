@@ -18,6 +18,7 @@ import { Mentions } from './Mentions';
 import { WorkspaceMembers } from './WorkspaceMembers';
 import { Workspaces } from './Workspaces';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString } from 'class-validator';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ schema: 'sleact', name: 'users' })
@@ -30,6 +31,7 @@ export class Users {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @IsEmail()
   @ApiProperty({
     example: 1,
     description: '사용자 email',
@@ -37,6 +39,7 @@ export class Users {
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
+  @IsString() // validation을 하면, 알아서 에러 발생함.
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 

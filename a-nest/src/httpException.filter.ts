@@ -16,23 +16,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
       | { message: any; statusCode: number }
       | { error: string; statusCode: 400; message: string[] }; // class-validator 타이핑
 
-    console.log(status, err);
+    if (typeof err !== 'string' && err.statusCode === 400) {
+      // class-validator 에러
+      return response.status(status).json({
+        success: false,
+        code: status,
+        data: err.message,
+      });
+    }
 
-    response.status(status).json({ msg: err });
-
-    // if (typeof err !== 'string' && err.statusCode === 400) {
-    //   // class-validator 에러
-    //   return response.status(status).json({
-    //     success: false,
-    //     code: status,
-    //     data: err.message,
-    //   });
-    // }
-
-    // response.status(status).json({
-    //   success: false,
-    //   code: status,
-    //   data: err.message,
-    // });
+    //  내가  발생시킨 에러
+    response.status(status).json({
+      success: false,
+      code: status,
+      data: err.message,
+    });
   }
 }
