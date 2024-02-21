@@ -16,6 +16,7 @@ import { Mentions } from 'src/entities/Mentions';
 import { Users } from 'src/entities/Users';
 import { WorkspaceMembers } from 'src/entities/WorkspaceMembers';
 import { Workspaces } from 'src/entities/Workspaces';
+import { AuthModule } from './auth/auth.module';
 
 const getEnv = async () => {
   // axios.get(/비밀키 요청)
@@ -28,6 +29,7 @@ const getEnv = async () => {
   // forRoot등 안에 설정을 넣어주어야함.
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     UsersModule,
     DmsModule,
     ChannelsModule,

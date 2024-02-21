@@ -8,5 +8,6 @@ import { Users } from 'src/entities/Users';
   imports: [TypeOrmModule.forFeature([Users])],
   providers: [UsersService],
   controllers: [UsersController],
+  // exports:[Users] // 다른곳에서 Userservice를 쓸 수 있음. (더 알아보기)
 })
 export class UsersModule {}

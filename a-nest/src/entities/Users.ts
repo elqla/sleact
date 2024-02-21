@@ -43,6 +43,7 @@ export class Users {
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 
+  // select할때 빼줌, 서버에서 사용자 불러올때 비밀번호 포함해서 불러오면 안됨.
   @Column('varchar', { name: 'password', length: 100, select: false })
   password: string;
 
@@ -96,7 +97,7 @@ export class Users {
       referencedColumnName: 'id',
     },
   })
-  Workspaces: Workspaces[];
+  Workspaces: Workspaces[]; // auth serializer에서 사용
 
   @ManyToMany(() => Channels, (channels) => channels.Members)
   @JoinTable({
