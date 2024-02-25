@@ -64,14 +64,14 @@ export class WorkspacesService {
     await this.channelMembersRepository.save(channelMember);
   }
 
-  // querybuilder - sql느낌
+  // querybuilder - sql느낌ㅡ(많이쓰심)
   async getWorkspaceMembers(url: string) {
     return this.usersRepository
       .createQueryBuilder('user')
       .innerJoin('user.WorkspaceMembers', 'members') // entity에 대한 별명 'members'
       .innerJoin('members.Workspace', 'workspace', 'workspace.url = :url', {
         url,
-      })
+      }) // innerjoin으로 필터링은 되지만 가져오진 않음
       .getMany();
 
     // .innerJoin('u.Workspaces', 'm') // manytomany 버그때문에 위처럼 씀.
@@ -86,6 +86,7 @@ export class WorkspacesService {
   async createWorkspaceMembers(url, email) {
     const workspace = await this.workspacesRepository.findOne({
       where: { url },
+      // relations: ['Channels']
       join: {
         alias: 'workspace',
         innerJoinAndSelect: {
@@ -93,15 +94,19 @@ export class WorkspacesService {
         },
       },
     });
+
+    // this.workspacesRepository.createQueryBuilder("workspace").innerJoinAndSelect("workspace.Channels", "channels").getOne()
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
       return null;
     }
+    // 워크스페이스에 사용자 추가해서 저장
     const workspaceMember = new WorkspaceMembers();
     workspaceMember.WorkspaceId = workspace.id;
     workspaceMember.UserId = user.id;
     await this.workspaceMembersRepository.save(workspaceMember);
     const channelMember = new ChannelMembers();
+    // 일반 채널에만 초대하기
     channelMember.ChannelId = workspace.Channels.find(
       (v) => v.name === '일반',
     ).id;
@@ -109,13 +114,26 @@ export class WorkspacesService {
     await this.channelMembersRepository.save(channelMember);
   }
 
+  // 워크스페이스 멤버 가져오기
   async getWorkspaceMember(url: string, id: number) {
-    return this.usersRepository
-      .createQueryBuilder('user')
-      .where('user.id = :id', { id })
-      .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
-        url,
-      })
-      .getOne();
+    // insert into values
+    // this.usersRepository
+    //   .createQueryBuilder('u')
+    //   .insert()
+    //   .into(Users)
+    //   .values(new Users()).execute;
+
+    return (
+      this.usersRepository
+        .createQueryBuilder('user')
+        // .where({id})
+        // .andWhere도 있음.
+        // sequalizer  <  typeorm 의 쿼리빌더가 더 좋을때가 있음 + rowquery
+        .where('user.id = :id', { id })
+        .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
+          url,
+        })
+        .getOne()
+    );
   }
 }
