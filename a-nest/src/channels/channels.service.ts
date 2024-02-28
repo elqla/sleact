@@ -6,6 +6,7 @@ import { Channels } from '../entities/Channels';
 import { Users } from '../entities/Users';
 import { Workspaces } from '../entities/Workspaces';
 import { MoreThan, Repository } from 'typeorm';
+import { EventsGateway } from 'src/events/events.gateway';
 @Injectable()
 export class ChannelsService {
   constructor(
@@ -19,7 +20,7 @@ export class ChannelsService {
     private channelChatsRepository: Repository<ChannelChats>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
-    // private readonly eventsGateway: EventsGateway,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -134,64 +135,73 @@ export class ChannelsService {
     );
   }
 
-  // async createWorkspaceChannelChats(
-  //   url: string,
-  //   name: string,
-  //   content: string,
-  //   myId: number,
-  // ) {
-  //   const channel = await this.channelsRepository
-  //     .createQueryBuilder('channel')
-  //     .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
-  //       url,
-  //     })
-  //     .where('channel.name = :name', { name })
-  //     .getOne();
-  //   const chats = new ChannelChats();
-  //   chats.content = content;
-  //   chats.UserId = myId;
-  //   chats.ChannelId = channel.id;
-  //   const savedChat = await this.channelChatsRepository.save(chats);
-  //   const chatWithUser = await this.channelChatsRepository.findOne({
-  //     where: { id: savedChat.id },
-  //     relations: ['User', 'Channel'],
-  //   });
-  //   this.eventsGateway.server
-  //     // .of(`/ws-${url}`)
-  //     .to(`/ws-${url}-${chatWithUser.ChannelId}`)
-  //     .emit('message', chatWithUser);
-  // }
+  async createWorkspaceChannelChats(
+    url: string,
+    name: string,
+    content: string,
+    myId: number,
+  ) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+    if (!channel) {
+      throw new NotFoundException('채널이 없습니다.');
+    }
+    const chats = new ChannelChats();
+    chats.content = content;
+    chats.UserId = myId;
+    chats.ChannelId = channel.id;
+    const savedChat = await this.channelChatsRepository.save(chats);
+    // 저장 후
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: savedChat.id },
+      relations: ['User', 'Channel'],
+    });
+    // socketio로 워크스페이스 + 채널 사용자한테 전송
+    this.eventsGateway.server
+      // .of(`/ws-${url}`)
+      .to(`/ws-${url}-${chatWithUser.ChannelId}`)
+      .emit('message', chatWithUser);
+  }
 
-  // async createWorkspaceChannelImages(
-  //   url: string,
-  //   name: string,
-  //   files: Express.Multer.File[],
-  //   myId: number,
-  // ) {
-  //   console.log(files);
-  //   const channel = await this.channelsRepository
-  //     .createQueryBuilder('channel')
-  //     .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
-  //       url,
-  //     })
-  //     .where('channel.name = :name', { name })
-  //     .getOne();
-  //   for (let i = 0; i < files.length; i++) {
-  //     const chats = new ChannelChats();
-  //     chats.content = files[i].path;
-  //     chats.UserId = myId;
-  //     chats.ChannelId = channel.id;
-  //     const savedChat = await this.channelChatsRepository.save(chats);
-  //     const chatWithUser = await this.channelChatsRepository.findOne({
-  //       where: { id: savedChat.id },
-  //       relations: ['User', 'Channel'],
-  //     });
-  //     this.eventsGateway.server
-  //       // .of(`/ws-${url}`)
-  //       .to(`/ws-${url}-${chatWithUser.ChannelId}`)
-  //       .emit('message', chatWithUser);
-  //   }
-  // }
+  async createWorkspaceChannelImages(
+    url: string,
+    name: string,
+    files: Express.Multer.File[],
+    myId: number,
+  ) {
+    console.log(files);
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+    if (!channel) {
+      throw new NotFoundException('채널이 없습니다.');
+    }
+    for (let i = 0; i < files.length; i++) {
+      // transaction need
+      const chats = new ChannelChats();
+      chats.content = files[i].path;
+      chats.UserId = myId;
+      chats.ChannelId = channel.id;
+      const savedChat = await this.channelChatsRepository.save(chats);
+      const chatWithUser = await this.channelChatsRepository.findOne({
+        where: { id: savedChat.id },
+        relations: ['User', 'Channel'],
+      });
+      this.eventsGateway.server
+        // .of(`/ws-${url}`)
+        .to(`/ws-${url}-${chatWithUser.ChannelId}`)
+        .emit('message', chatWithUser);
+    }
+  }
 
   async getChannelUnreadsCount(url, name, after) {
     const channel = await this.channelsRepository

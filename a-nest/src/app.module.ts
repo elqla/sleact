@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UsersModule } from './users/users.module';
-import { DmsModule } from './dms/dms.module';
+import { DMsModule } from './dms/dms.module';
 import { ChannelsModule } from './channels/channels.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -31,7 +31,7 @@ const getEnv = async () => {
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
-    DmsModule,
+    DMsModule,
     ChannelsModule,
     WorkspacesModule,
     TypeOrmModule.forRoot({

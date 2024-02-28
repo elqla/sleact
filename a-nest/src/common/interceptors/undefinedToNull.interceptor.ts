@@ -40,6 +40,7 @@ export class UndefinedToNullInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     // 전 부분 (컨트롤러 가기 전) -- logging시 시간초 잴때 쓸 수 있지만, 잘 안쓰심
+    // context.switchToWs() - 웹소켓
     return next.handle().pipe(
       map((data) => (data === undefined ? null : data)),
       // map((data) => ({
