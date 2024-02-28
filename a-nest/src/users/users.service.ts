@@ -27,6 +27,12 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
+  async findByEmail(email: string) {
+    return this.usersRepository.findOne({
+      where: { email },
+      select: ['id', 'email', 'password'],
+    });
+  }
   // async에서 throw한 경우엔 서버를 멈추지 않고, 경고만 뜨고 만다.
   async join(email: string, nickname: string, password: string) {
     const queryRunner = this.dataSource.createQueryRunner();
